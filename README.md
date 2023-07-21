@@ -1,6 +1,6 @@
 # 服务器配置
 
-@[TOC](目录)  
+[TOC]
 
 ## 装机
 
@@ -58,7 +58,7 @@
 最后安装好了会提示你拔了u盘，再点击重启
 
 ## ubuntu换源
-  
+
 [原blog](https://blog.csdn.net/qq_39942341/article/details/120394844?ops_request_misc=&request_id=19ce8a4d8ffe4e80834a84247b5f1158&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-10-120394844-null-null.268^v1^control&utm_term=ubuntu&spm=1018.2226.3001.4450)  
 
 ustc：[https://mirrors.ustc.edu.cn/help/ubuntu.html](https://mirrors.ustc.edu.cn/help/ubuntu.html)
