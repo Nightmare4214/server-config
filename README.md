@@ -1,6 +1,54 @@
 # 服务器配置
 
-[TOC]
+- [服务器配置](#服务器配置)
+  - [装机](#装机)
+    - [制作u启](#制作u启)
+    - [安装系统](#安装系统)
+    - [ubuntu](#ubuntu)
+  - [ubuntu换源](#ubuntu换源)
+  - [NVIDIA驱动](#nvidia驱动)
+  - [cuda](#cuda)
+  - [cudnn](#cudnn)
+  - [conda 换源](#conda-换源)
+  - [pip 换源](#pip-换源)
+  - [git dns](#git-dns)
+  - [无法访问微软商店](#无法访问微软商店)
+  - [字体](#字体)
+  - [terminal](#terminal)
+    - [添加conda](#添加conda)
+    - [添加git](#添加git)
+    - [修改字体](#修改字体)
+  - [zsh](#zsh)
+    - [修改字体](#修改字体-1)
+    - [安装](#安装)
+      - [conda](#conda)
+      - [cuda](#cuda-1)
+      - [powerlevel10k主题](#powerlevel10k主题)
+      - [其余插件](#其余插件)
+      - [手动更新](#手动更新)
+  - [tmux](#tmux)
+    - [常用命令](#常用命令)
+      - [会话](#会话)
+      - [panes](#panes)
+      - [windows](#windows)
+      - [输出历史命令](#输出历史命令)
+  - [ssh](#ssh)
+    - [免密登录](#免密登录)
+    - [vscode](#vscode)
+  - [tensorboard](#tensorboard)
+  - [文件复制](#文件复制)
+  - [gpu状态](#gpu状态)
+  - [autojump](#autojump)
+    - [zsh](#zsh-1)
+  - [vim](#vim)
+  - [jupyter](#jupyter)
+    - [插件](#插件)
+  - [frpc](#frpc)
+  - [设置定时重启](#设置定时重启)
+  - [wandb](#wandb)
+  - [docker](#docker)
+  - [wsl](#wsl)
+  - [好用的工具](#好用的工具)
 
 ## 装机
 
@@ -945,6 +993,10 @@ sudo service cron restart
 TODO
 
 ## docker
+
+TODO
+
+## wsl
 
 TODO
 
