@@ -97,6 +97,7 @@ sudo apt update && sudo apt -y upgrade
 [nvidia驱动](https://www.nvidia.cn/Download/Find.aspx?lang=cn)
 
 卸载原来的  
+
 ```bash
 sudo apt-get update
 sudo apt-get remove --purge nvidia*
@@ -279,7 +280,6 @@ conda clean -i
 ## pip 换源
 
 [原blog](https://blog.csdn.net/qq_39942341/article/details/117735489?ops_request_misc=&request_id=3fa12762ad8745f997288df1cb58ef73&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-2-117735489-null-null.268^v1^control&utm_term=conda&spm=1018.2226.3001.4450)  
-
 
 ```bash
 python -m pip install --upgrade pip
