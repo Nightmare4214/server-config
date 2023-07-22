@@ -998,7 +998,47 @@ TODO
 
 ## wsl
 
-TODO
+用管理员打开powershell
+
+```bash
+wsl --install
+```
+
+重启
+
+用管理员打开powershell  
+启用适用于 Linux 的 Windows 子系统  
+
+```bash
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+安装这个（也有可能你安装过了）  
+[https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)
+
+继续打开powershell（管理员）  
+
+```bash
+wsl --set-default-version 2
+```
+
+接着  
+
+```bash
+wsl -l -o
+```
+
+列出可以安装的系统  
+![在这里插入图片描述](img/wsl1.png)  
+比如安装ubuntu18  
+
+```bash
+wsl --install -d Ubuntu-18.04
+```
+
+然后设置账号密码  
+![在这里插入图片描述](img/wsl2.png)  
 
 ## 好用的工具
 
