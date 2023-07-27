@@ -9,6 +9,9 @@
   - [NVIDIA驱动](#nvidia驱动)
   - [cuda](#cuda)
   - [cudnn](#cudnn)
+  - [自动联网](#自动联网)
+    - [linux](#linux)
+      - [开机时启动脚本](#开机时启动脚本)
   - [conda 换源](#conda-换源)
   - [pip 换源](#pip-换源)
   - [git dns](#git-dns)
@@ -46,7 +49,11 @@
   - [frpc](#frpc)
   - [设置定时重启](#设置定时重启)
   - [wandb](#wandb)
+    - [联网](#联网)
+    - [本地](#本地)
   - [docker](#docker)
+    - [linux](#linux-1)
+      - [nvidia-docker](#nvidia-docker)
   - [wsl](#wsl)
   - [好用的工具](#好用的工具)
 
@@ -284,6 +291,118 @@ sudo ln -sf /usr/local/cuda-11.2/targets/x86_64-linux/lib/libcudnn_ops_train.so.
 sudo ln -sf /usr/local/cuda-11.2/targets/x86_64-linux/lib/libcudnn_cnn_infer.so.8.1.1 /usr/local/cuda-11.2/targets/x86_64-linux/lib/libcudnn_cnn_infer.so.8
 ```
 
+## 自动联网
+
+### linux
+
+```bash
+sudo apt-get install net-tools cron curl -y
+```
+
+编写脚本
+
+```bash
+nano ~/test.sh
+```
+
+修改用户名密码
+
+```bash
+#!/bin/bash
+
+USER_NAME="your username"
+PASSWORD="your password"
+SERVICE="internet"
+
+# Returns a string in which all non-alphanumeric characters except -_.~ have
+# been replaced with a percent (%) sign followed by two hex digits.
+#
+# Example
+# -------
+#     easier:    echo http://url/q?=$( rawurlencode "$args" )
+#     faster:    rawurlencode "$args"; echo http://url/q?${REPLY}
+
+rawurlencode() {
+    local string="${1}"
+    local strlen=${#string}
+    local encoded=""
+    local pos c o
+
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+        c=${string:$pos:1}
+        case "$c" in
+           [-_.~a-zA-Z0-9] ) o="${c}" ;;
+           * )               printf -v o '%%%02x' "'$c"
+        esac
+        encoded+="${o}"
+    done
+    echo "${encoded}"    # You can either set a return variable (FASTER) 
+    REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
+}
+
+USER_NAME=`rawurlencode \`rawurlencode $USER_NAME\``
+PASSWORD=`rawurlencode \`rawurlencode $PASSWORD\``
+SERVICE=`rawurlencode \`rawurlencode $SERVICE\``
+
+while true
+do
+    captiveReturnCode=`curl -s -I -m 10 -o /dev/null -s -w %{http_code} http://www.google.cn/generate_204`
+    if [ "${captiveReturnCode}" = "204" ]; then
+        echo `date`
+        echo "You are already online!"
+        sleep 60
+        continue
+    fi
+
+    loginPageURL=`curl -s "http://www.google.cn/generate_204" | awk -F \' '{print $2}'`
+    
+    loginURL=`echo ${loginPageURL} | awk -F \? '{print $1}'`
+    loginURL="${loginURL/index.jsp/InterFace.do?method=login}"
+    
+    queryString=`echo ${loginPageURL} | awk -F \? '{print $2}'`
+    queryString=`rawurlencode \`rawurlencode $queryString\``
+
+    if [ -n "${loginURL}" ]; then
+      authResult=`curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.91 Safari/537.36" -e "${loginPageURL}" -b "EPORTAL_COOKIE_USER_NAME=; EPORTAL_COOKIE_PASSWORD=; EPORTAL_COOKIE_SERVER=; EPORTAL_COOKIE_SERVER_NAME=; EPORTAL_AUTO_LAND=; EPORTAL_USER_GROUP=; EPORTAL_COOKIE_OPERATORPWD=;" -d "userId=${USER_NAME}&password=${PASSWORD}&service=${SERVICE}&queryString=${queryString}&operatorPwd=&operatorUserId=&validcode=&passwordEncrypt=false" -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8" -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" "${loginURL}"`
+        echo `date`
+        echo $authResult
+    fi
+    unset loginURL
+    sleep 20
+done
+
+
+```
+
+保存退出
+
+```bash
+chmod a+x ~/test.sh
+```
+
+执行(注意修改test.sh和test.log的路径)
+
+```bash
+nohup bash /home/icml007/test.sh >/home/icml007test.log 2>&1 &
+```
+
+#### 开机时启动脚本
+
+```bash
+crontab -e
+```
+
+第一次输入这个命令回让你选择编辑器
+
+![script](img/script.png)
+
+在最后面添加(注意修改test.sh和test.log的路径)  
+这条命令表示开机/重启时在后台执行test.sh，所有输出都输出到test.log  
+
+```bash
+@reboot nohup bash /home/icml007/test.sh >/home/icml007/test.log 2>&1 &
+```
+
 ## conda 换源
 
 [原blog](https://blog.csdn.net/qq_39942341/article/details/117735489?ops_request_misc=&request_id=3fa12762ad8745f997288df1cb58ef73&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-2-117735489-null-null.268^v1^control&utm_term=conda&spm=1018.2226.3001.4450)  
@@ -460,6 +579,8 @@ D:\Miniconda3\Lib\site-packages\conda\shell\conda_icon.ico
 
 ### 修改字体
 
+[安装字体](#字体)
+
 点终端的preferences  
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/ffc02ce184ed43978adc2008a795dc02.png)  
 修改字体  
@@ -512,7 +633,7 @@ source ~/.zshrc
 设置更新时间  
 
 ```bash
-sudo nano ~/.zshrc
+nano ~/.zshrc
 ```
 
 这里根据提示，然后去掉注释
@@ -540,7 +661,7 @@ source ~/.zshrc
 
 ```bash
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-sudo nano ~/.zshrc
+nano ~/.zshrc
 ```
 
 修改
@@ -575,14 +696,19 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 ```
 
 ```bash
-sudo nano ~/.zshrc
+nano ~/.zshrc
 ```
 
 改这  
+把zsh-autosuggestions添加上去  
 把zsh-syntax-highlighting添加上去  
 ![在这里插入图片描述](img/zsh_plugin.png)  
 保存，退出  
 然后  
+
+```bash
+source ~/.zshrc
+```
 
 #### 手动更新
 
@@ -595,7 +721,7 @@ omz update
 [原blog](https://blog.csdn.net/qq_39942341/article/details/121450642?ops_request_misc=&request_id=f201544c0b6b48a2b087b076a02b10e9&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-2-121450642-null-null.268^v1^control&utm_term=zsh&spm=1018.2226.3001.4450)
 
 ```bash
-sudo apt-get install -y tmux
+sudo apt-get install -y tmux git
 ```
 
 ```bash
@@ -990,13 +1116,94 @@ sudo service cron restart
 
 ## wandb
 
+[原blog](https://blog.csdn.net/qq_39942341/article/details/121869797?ops_request_misc=&request_id=4fa9af5a6f5a4e6bb07b0b1dca3dfd21&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-121869797-null-null.268^v1^control&utm_term=wandb&spm=1018.2226.3001.4450)
+
+### 联网
+
+在[wandb](https://wandb.ai/)注册  
+在User Settings中找到自己的API keys  
+
+在本地登录, 会让你输入api key  
+
+```bash
+wandb login
+```
+
+示例代码
+
+```python
+#!/usr/bin/env python
+# _*_ coding:utf-8 _*_
+import os
+import wandb
+
+data_save_dir = '/data/wandb'
+os.makedirs(data_save_dir, exist_ok=True)
+wandb.init(
+    project="my-test-project",  # 项目名字
+    name="first",  # 项目底下每一次训练的名字
+    dir=data_save_dir  # 文件保存的位置
+)
+
+# 配置的参数（可以把超参数放在这里）
+wandb.config.update({
+    "learning_rate": 0.001,
+    "epochs": 100,
+    "batch_size": 128
+})
+
+for i in range(10):
+    if i & 1:
+        # 前面的字典是纵坐标数据，step是横坐标
+        wandb.log({'i': i, 'j': i + 1}, step=i)
+
+
+```
+
+### 本地
+
 TODO
 
 ## docker
 
-TODO
+[原blog](https://blog.csdn.net/qq_39942341/article/details/130182892?ops_request_misc=&request_id=7f004b4a06054fb7a04ddeaf552d64f8&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-130182892-null-null.268^v1^control&utm_term=docker&spm=1018.2226.3001.4450)
+
+### linux
+
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+
+为了防止后面权限有问题，执行下面这个
+
+```bash
+sudo groupadd docker
+sudo gpasswd -a $USER docker
+newgrp docker
+```
+
+#### nvidia-docker
+
+```bash
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+```
+
+```bash
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
 
 ## wsl
+
+[原blog](https://blog.csdn.net/qq_39942341/article/details/121512900?ops_request_misc=&request_id=63d3c1d9dd7446afbb49d2547f045d83&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-121512900-null-null.268^v1^control&utm_term=wsl&spm=1018.2226.3001.4450)
 
 用管理员打开powershell
 
