@@ -36,6 +36,8 @@
       - [windows](#windows)
       - [输出历史命令](#输出历史命令)
   - [ssh](#ssh)
+    - [本地配置](#本地配置)
+    - [服务器配置ssh](#服务器配置ssh)
     - [免密登录](#免密登录)
     - [vscode](#vscode)
   - [tensorboard](#tensorboard)
@@ -797,6 +799,25 @@ tmux kill-session -t session_name
 接着，```<prefix> :```，输入```save-buffer filename```,命令就会存储到filename里
 
 ## ssh
+
+### 本地配置
+
+如果你的用户是中文（比如某师兄），那就执行这个
+
+win+r，输入
+
+```cmd
+intl.cpl
+```
+
+勾上UTF-8  
+![ssh2.png](img/ssh2.png)  
+
+在git里，选zh_cn和UTF-8  
+
+![ssh3.png](img/ssh3.png)
+
+### 服务器配置ssh
 
 如果没有ifconfig  
 
