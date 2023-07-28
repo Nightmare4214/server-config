@@ -1084,56 +1084,164 @@ conda install -c conda-forge jupyter_contrib_nbextensions
 
 ![jupyter](img/jupyter1.png)
 
-## frpc
+## frpc[公网链接：在家也可以炼实验室的丹了]
 
-还没研究过
+### 应用场景
 
-从 github 将 linux_amd64 结尾的 tar.gz ⽤ wget 下载下来  
-然后解压  
-从别处拷⻉ .ini ⽂件  
+我们使用ssh链接实验室的机器的时候，一般在实验室内部使用的同一个局域网连接，一般使用的是192.168.xx.xx的网络，但是如果我们在家里，使用的家里的网络也想连接实验室的机器的话，那么就需要一个tcp的转接服务器才可以。frpc就是这样一个免费的转接服务器，他使用自己的域名，转发tcp或者http请求，使得我们可以链接到实验室内部的机器的指定的端口的程序。
 
-```ini
-[common]
-server_addr = xx.xx.xx.xx (这个是服务器的 IP)
-server_port = 7000 (这个是服务器脚本的端⼝)
-[ssh*](这⾥的*改成对应的编号, ⽐如 ssh1 ssh2 ssh3)
-type = tcp
-local_ip = 127.0.0.1
-local_port = 22
-remote_port = 只需要改这个端⼝就可以, ⽐如 6001 6002 6003
-```
+【当然不限于ssh，它只是转发端口的请求，重要的是绑定的端口号。】比如说
 
-```bash
-sudo nano /etc/systemd/system/frpc.service
-```
+- 在windows上绑定3306端口，那么就可以实现windows的远程桌面程序，在家里就可以远程实验室机器的图形界面...再也不用担心todesk奇葩的网速了
 
-```ini
-[Unit]
-Description=frpc daemon
-After=syslog.target network.target
-Wants=network.target
-[Service]
-Type=simple
-ExecStart=/home/sxl/Downloads/frp_0.27.0_linux_amd64/frpc -c /home/sxl/Downloads/frp_0.27.0_linux_amd64/frpc.ini
-Restart= always
-RestartSec=1min
-[Install]
-WantedBy=multi-user.target
-```
+- 绑定tensorBoard的发射端口6006，那么在家里就可以浏览炼丹的最新进度
 
-```bash
-systemctl start frpc # 启动frps
-systemctl enable frpc # frps设置为开机启动
-```
+- ...
 
-## 设置定时重启
+  
 
-```bash
-sudo crontab -e
-# 编辑内容如下, 为每天 4 点重启
-0 4 * * * /sbin/reboot
-sudo service cron restart
-```
+### 准备工具
+
+OpenFRPC:https://console.openfrp.net/login  这个网速更快
+
+还有其他的免费工具，比如花生壳
+
+这是两个免费提供FRPC功能的平台，它是可以提供免费的转接流量，每天签到会送流量，每天大概是4GB的流量。我们以OpenFRPC为例，构建我们的公网链接
+
+### 构建步骤
+
+####  注册账号
+
+在https://console.openfrp.net/login 注册，一般需要实名认证
+
+#### 创建隧道![1690437518527](img/1690437518527.png)
+
+#### 获取这个隧道的配置文件![1690437650217](img/1690437650217.png)
+
+![1690437719626](img/1690437719626.png)
+
+#### 下载登录器程序
+
+这个程序下载到需要转发ssh端口的服务器上
+
+#### ![1690438137275](img/1690438137275.png)
+
+
+
+#### 配置和启用转发程序
+
+本质上启动的时候是： frpc程序 + 一个配置文件 =就可以启动一个隧道，推送指定端口的tcp请求
+
+##### windows
+
+- windows平台可以下载那个win启动器，这个启动器是包含登录和frpc功能的一个ui式exe程序，下载完毕之后直接安装，然后登录OpenFRPC的账号密码，在程序内部直接启动，frpc隧道就可以了。
+- 当然也可以直接下frpc启动器，对应的是windows系统的那个标签下的下载文件，这个文件本意上是需要用户设置服务程序的。大致步骤其实和Linux机器的差不多。
+
+##### Linux机器【举例】
+
+1. 下载程序文件到机器上![1690439044681](img/1690439044681.png)
+
+   这是我自己的机器上下载好的**/usr/local/bin/frpc_linux_amd64**启动器，注意给定的可以执行权限，'chmod 777 frpc_linux_amd64'
+
+   >  frps是NetFRPC的启动器，后面跟着是它的配置文件。
+
+2. 每一隧道需要一个单独的配置文件，文件名可以随意起，我有两个隧道，所以有两个配置文件。
+
+   ```
+   frpc-ssh.ini就是一个隧道的配置文件
+   ```
+
+3. 编写配置文件
+
+   将这个配置文件中的内容复制进去![1690437719626](img/1690437719626.png)，假如说你的配置文件是/usr/local/bin/frpc-ssh.ini。那么复制进去就会像这样![1690439664200](img/1690439664200.png)
+
+   
+
+4. 配置服务，可以让它开机启动
+
+   服务就是一个启动脚本，名字可以随意起，但是需要把文件创建在/etc/systemd/system目录下，我的服务是
+
+   /etc/systemd/system/frpc-ssh.service,下面是这个服务文件的内容，注意啊修改里面的启动文件路径和启动配置文件路径
+
+   ```ini
+   [Unit]
+   # 服务名称，可自定义
+   Description = frpc-ssh-server
+   After = network.target syslog.target
+   Wants = network.target
+   
+   [Service]
+   Type = simple
+   # 启动frpc的命令，需修改为您的frpc的安装路径 -c 后面紧跟着的是启动配置文件的路径
+   ExecStart =/usr/local/bin/frpc_linux_amd64 -c /usr/local/bin/frpc-ssh.ini
+   
+   [Install]
+   WantedBy = multi-user.target
+   
+   ```
+   
+   
+   
+   
+   5.启动隧道服务
+   
+   ```bash
+   sudo systemctl start frpc-ssh.service
+   sudo systemctl enable frpc-ssh.service 
+   sudo systemctl status frpc-ssh.service
+   ```
+   
+   ![1690441256433](img/1690441256433.png)
+   
+   看到服务运行正常，启动器的输出无报错。就算是隧道启动成功。不成功，可能你需要回头检查检查哪里出错了。
+   
+5. 
+
+   
+
+   ```bash
+   #服务使用的命令样例
+   sudo systemctl start frpc-ssh.service #  启动frpc-ssh服务
+   sudo systemctl enable frpc-ssh.service #设置 frpc-ssh.service为开机启动
+   sudo systemctl status frpc-ssh.service # 查看服务启动状态和日志
+   sudo systemctl restart frpc-ssh.service # 重启服务
+   sudo systemctl stop frpc-ssh.service # 停止服务
+   ```
+
+   
+
+   ## 设置定时重启
+
+   ```bash
+   sudo crontab -e
+   # 编辑内容如下, 为每天 4 点重启
+   0 4 * * * /sbin/reboot
+   sudo service frpc-ssh restart
+   ```
+
+   ## 
+
+#### 使用
+
+![1690441854158](img/1690441854158.png)
+
+ ![1690441886716](img/1690441886716.png)
+
+ 找到你刚才启动的隧道，查看这里的链接地址就可以实现ssh远程登录了
+
+![1690441978268](img/1690441978268.png)
+
+   我使用的是xshell登录ssh，填写主机地址和远程端口，这样就可以链接你刚才的主机了。
+
+![1690442093976](img/1690442093976.png)
+
+   也可以使用vscode远程主机，这样就可以在家里调试代码，修改程序了。非常的流畅
+
+![1690442278570](img/1690442278570.png)
+
+![1690442720458](img/1690442720458.png)
+
+
 
 ## wandb
 
