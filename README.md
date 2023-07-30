@@ -1176,9 +1176,10 @@ conda install -c conda-forge jupyter_contrib_nbextensions
 
 4. 配置服务，可以让它开机启动
 
-   服务就是一个启动脚本，名字可以随意起，但是需要把文件创建在/etc/systemd/system目录下，我的服务是
+   服务就是一个启动脚本，名字可以随意起，但是需要把文件创建在/etc/systemd/system目录下  
+   我的服务是/etc/systemd/system/frpc-ssh.service  
 
-   /etc/systemd/system/frpc-ssh.service,下面是这个服务文件的内容，注意啊修改里面的启动文件路径和启动配置文件路径
+   下面是这个服务文件的内容，注意修改里面的启动文件路径和启动配置文件路径
 
    ```ini
    [Unit]
@@ -1236,6 +1237,13 @@ conda install -c conda-forge jupyter_contrib_nbextensions
 ![1690441978268](img/1690441978268.png)  
 我使用的是xshell登录ssh，填写主机地址和远程端口，这样就可以链接你刚才的主机了。  
 ![1690442093976](img/1690442093976.png)  
+
+也可以使用ssh，其中连接地址不包括端口
+
+```bash
+ssh 用户名@连接地址 -p 端口
+```
+
 也可以使用vscode远程主机，这样就可以在家里调试代码，修改程序了。非常的流畅  
 ![1690442278570](img/1690442278570.png)  
 ![1690442720458](img/1690442720458.png)  
