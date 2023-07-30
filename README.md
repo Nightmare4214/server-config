@@ -48,8 +48,18 @@
   - [vim](#vim)
   - [jupyter](#jupyter)
     - [插件](#插件)
-  - [frpc](#frpc)
-  - [设置定时重启](#设置定时重启)
+  - [frpc\[公网链接：在家也可以炼实验室的丹了\]](#frpc公网链接在家也可以炼实验室的丹了)
+    - [应用场景](#应用场景)
+    - [准备工具](#准备工具)
+    - [构建步骤](#构建步骤)
+      - [注册账号](#注册账号)
+      - [创建隧道](#创建隧道)
+      - [获取这个隧道的配置文件](#获取这个隧道的配置文件)
+      - [下载登录器程序](#下载登录器程序)
+      - [配置和启用转发程序](#配置和启用转发程序)
+        - [windows](#windows-1)
+        - [Linux机器【举例】](#linux机器举例)
+      - [使用](#使用)
   - [wandb](#wandb)
     - [联网](#联网)
     - [本地](#本地)
@@ -517,6 +527,8 @@ linux
 sudo apt-get install ttf-mscorefonts-installer fontconfig -y
 ```
 
+在字体所在目录打开终端  
+
 ```bash
 sudo mkdir -p /usr/share/fonts/MesloLGS
 sudo cp *.ttf /usr/share/fonts/MesloLGS
@@ -690,7 +702,7 @@ p10k configure
 
 #### 其余插件
 
-分别是自动补全，语法高亮，补全conda
+分别是自动补全，语法高亮
 
 ```bash
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
@@ -1084,7 +1096,7 @@ conda install -c conda-forge jupyter_contrib_nbextensions
 
 ![jupyter](img/jupyter1.png)
 
-## frpc[公网链接：在家也可以炼实验室的丹了]
+## frpc\[公网链接：在家也可以炼实验室的丹了\]
 
 ### 应用场景
 
@@ -1098,35 +1110,33 @@ conda install -c conda-forge jupyter_contrib_nbextensions
 
 - ...
 
-  
-
 ### 准备工具
 
-OpenFRPC:https://console.openfrp.net/login  这个网速更快
-
-还有其他的免费工具，比如花生壳
+[OpenFRPC](https://console.openfrp.net/login)  这个网速更快  
+还有其他的免费工具，比如花生壳  
 
 这是两个免费提供FRPC功能的平台，它是可以提供免费的转接流量，每天签到会送流量，每天大概是4GB的流量。我们以OpenFRPC为例，构建我们的公网链接
 
 ### 构建步骤
 
-####  注册账号
+#### 注册账号
 
-在https://console.openfrp.net/login 注册，一般需要实名认证
+在[OpenFRPC](https://console.openfrp.net/login) 注册，一般需要实名认证
 
-#### 创建隧道![1690437518527](img/1690437518527.png)
+#### 创建隧道
 
-#### 获取这个隧道的配置文件![1690437650217](img/1690437650217.png)
+![1690437518527](img/1690437518527.png)  
 
-![1690437719626](img/1690437719626.png)
+#### 获取这个隧道的配置文件
+
+![1690437650217](img/1690437650217.png)  
+
+![1690437719626](img/1690437719626.png)  
 
 #### 下载登录器程序
 
-这个程序下载到需要转发ssh端口的服务器上
-
-#### ![1690438137275](img/1690438137275.png)
-
-
+这个程序下载到需要转发ssh端口的服务器上  
+![1690438137275](img/1690438137275.png)  
 
 #### 配置和启用转发程序
 
@@ -1139,23 +1149,30 @@ OpenFRPC:https://console.openfrp.net/login  这个网速更快
 
 ##### Linux机器【举例】
 
-1. 下载程序文件到机器上![1690439044681](img/1690439044681.png)
+1. 下载程序文件到机器上
 
-   这是我自己的机器上下载好的**/usr/local/bin/frpc_linux_amd64**启动器，注意给定的可以执行权限，'chmod 777 frpc_linux_amd64'
+   ![1690439044681](img/1690439044681.png)
+
+   这是我自己的机器上下载好的/usr/local/bin/frpc_linux_amd64启动器，注意给定的可以执行权限
+
+   ```bash
+   chmod 777 frpc_linux_amd64
+   ```
 
    >  frps是NetFRPC的启动器，后面跟着是它的配置文件。
 
 2. 每一隧道需要一个单独的配置文件，文件名可以随意起，我有两个隧道，所以有两个配置文件。
 
-   ```
-   frpc-ssh.ini就是一个隧道的配置文件
+   ```bash
+   frpc-ssh.ini #就是一个隧道的配置文件
    ```
 
 3. 编写配置文件
 
-   将这个配置文件中的内容复制进去![1690437719626](img/1690437719626.png)，假如说你的配置文件是/usr/local/bin/frpc-ssh.ini。那么复制进去就会像这样![1690439664200](img/1690439664200.png)
-
-   
+   将这个配置文件中的内容复制进去  
+   ![1690437719626](img/1690437719626.png)  
+   假如说你的配置文件是/usr/local/bin/frpc-ssh.ini, 那么复制进去就会像这样  
+   ![1690439664200](img/1690439664200.png)  
 
 4. 配置服务，可以让它开机启动
 
@@ -1179,28 +1196,22 @@ OpenFRPC:https://console.openfrp.net/login  这个网速更快
    WantedBy = multi-user.target
    
    ```
-   
-   
-   
-   
-   5.启动隧道服务
-   
+
+5. 启动隧道服务
+
    ```bash
    sudo systemctl start frpc-ssh.service
    sudo systemctl enable frpc-ssh.service 
    sudo systemctl status frpc-ssh.service
    ```
-   
-   ![1690441256433](img/1690441256433.png)
-   
-   看到服务运行正常，启动器的输出无报错。就算是隧道启动成功。不成功，可能你需要回头检查检查哪里出错了。
-   
-5. 
 
-   
+   ![1690441256433](img/1690441256433.png)  
+
+   看到服务运行正常，启动器的输出无报错。就算是隧道启动成功。不成功，可能你需要回头检查检查哪里出错了。
+
+6. 服务使用的命令样例
 
    ```bash
-   #服务使用的命令样例
    sudo systemctl start frpc-ssh.service #  启动frpc-ssh服务
    sudo systemctl enable frpc-ssh.service #设置 frpc-ssh.service为开机启动
    sudo systemctl status frpc-ssh.service # 查看服务启动状态和日志
@@ -1208,9 +1219,7 @@ OpenFRPC:https://console.openfrp.net/login  这个网速更快
    sudo systemctl stop frpc-ssh.service # 停止服务
    ```
 
-   
-
-   ## 设置定时重启
+7. 设置定时重启
 
    ```bash
    sudo crontab -e
@@ -1219,29 +1228,17 @@ OpenFRPC:https://console.openfrp.net/login  这个网速更快
    sudo service frpc-ssh restart
    ```
 
-   ## 
-
 #### 使用
 
-![1690441854158](img/1690441854158.png)
-
- ![1690441886716](img/1690441886716.png)
-
- 找到你刚才启动的隧道，查看这里的链接地址就可以实现ssh远程登录了
-
-![1690441978268](img/1690441978268.png)
-
-   我使用的是xshell登录ssh，填写主机地址和远程端口，这样就可以链接你刚才的主机了。
-
-![1690442093976](img/1690442093976.png)
-
-   也可以使用vscode远程主机，这样就可以在家里调试代码，修改程序了。非常的流畅
-
-![1690442278570](img/1690442278570.png)
-
-![1690442720458](img/1690442720458.png)
-
-
+![1690441854158](img/1690441854158.png)  
+![1690441886716](img/1690441886716.png)  
+找到你刚才启动的隧道，查看这里的链接地址就可以实现ssh远程登录了  
+![1690441978268](img/1690441978268.png)  
+我使用的是xshell登录ssh，填写主机地址和远程端口，这样就可以链接你刚才的主机了。  
+![1690442093976](img/1690442093976.png)  
+也可以使用vscode远程主机，这样就可以在家里调试代码，修改程序了。非常的流畅  
+![1690442278570](img/1690442278570.png)  
+![1690442720458](img/1690442720458.png)  
 
 ## wandb
 
