@@ -812,6 +812,8 @@ tmux kill-session -t session_name
 
 ## ssh
 
+[原blog](https://blog.csdn.net/qq_39942341/article/details/131824290?spm=1001.2014.3001.5501)
+
 ### 本地配置
 
 如果你的用户是中文（比如某师兄），那就执行这个
@@ -1037,8 +1039,10 @@ set ruler
 
 ## jupyter
 
+<7是因为后面的插件目前不支持7
+
 ```bash
-pip install jupyter
+pip install jupyter 'notebook<7'
 ```
 
 设置密码  
@@ -1055,7 +1059,8 @@ jupyter notebook password
 jupyter notebook --generate-config --allow-root
 ```
 
-修改生成的配置文件
+修改生成的配置文件  
+(有的版本不是ServerApp, 而是Notebook)
 
 ```python
 c.ServerApp.allow_root = True
@@ -1066,6 +1071,7 @@ c.ServerApp.notebook_dir = ''
 c.ServerApp.open_browser = False
 c.ServerApp.disable_check_xsrf = True
 c.ServerApp.allow_origin = '*'
+c.ServerApp.allow_remote_access = True
 ```
 
 保存
@@ -1078,23 +1084,14 @@ jupyter notebook --allow-root
 
 ### 插件
 
-TODO：装了之后暂时不能远程
-
 安装
 
 ```bash
+pip install --upgrade jupyterlab jupyterlab-pygments 'nbconvert>=7' 'mistune>=2'
+pip install jupyter_contrib_nbextensions
+jupyter contrib nbextension install --user
 conda install nb_conda
-conda install -c conda-forge jupyter_contrib_nbextensions
-# pip install jupyter_contrib_nbextensions
 ```
-
-第一次会显示这样的页面
-
-需要把终端中提示的token输进来，然后自己设置一个密码
-
-下一次登入就可以直接输密码了
-
-![jupyter](img/jupyter1.png)
 
 ## frpc\[公网链接：在家也可以炼实验室的丹了\]
 
