@@ -1217,14 +1217,14 @@ conda install nb_conda
    sudo systemctl stop frpc-ssh.service # 停止服务
    ```
 
-7. 设置定时重启
+<!-- 7. 设置定时重启
 
    ```bash
    sudo crontab -e
    # 编辑内容如下, 为每天 4 点重启
    0 4 * * * /sbin/reboot
    sudo service frpc-ssh restart
-   ```
+   ``` -->
 
 #### 使用
 
