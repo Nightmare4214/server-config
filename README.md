@@ -104,10 +104,10 @@
 ![install5](img/install5.jpg)  
 选Minimal installation, 勾下面的install third-party  
 ![install6](img/install6.jpg)  
-选Something else  
+这里可以先选择erase disk来格式化，然后continue，再back，接着选Something else  
 ![install7](img/install7.jpg)  
 
-通过减号，使得一个盘只剩一个free space  
+通过减号，使得一个盘只剩一个free space, 如果是新的盘，需要先new partition  
 ![install8](img/install8.jpg)  
 
 点击加号，分配swap，一般分配2倍内存  
